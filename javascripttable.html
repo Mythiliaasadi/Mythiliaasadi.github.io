@@ -1,0 +1,119 @@
+<html>
+<head>
+    <title>Books Table</title>
+    <style>
+        th { cursor: pointer;  padding: 10px; }
+        td { padding: 10px; }
+        table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+        #pagination button { margin: 5px; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+
+    <table id="books" border="2">
+        <thead>
+            <tr>
+                <th onclick="sortTable('title')">Title</th>
+                <th onclick="sortTable('isbn')">ISBN</th>
+                <th onclick="sortTable('pageCount')">Page Count</th>
+                <th onclick="sortTable('thumbnailUrl')">Thumbnail URL</th>
+                <th onclick="sortTable('status')">Status</th>
+                <th onclick="sortTable('authors')">Authors</th>
+                <th onclick="sortTable('categories')">Categories</th>
+                <th onclick="sortTable('price')">Price</th>
+                <th onclick="sortTable('currency')">Currency</th>
+                <th onclick="sortTable('discount')">Discount</th>
+                <th onclick="sortTable('discountUnits')">Discount Units</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+
+    
+    <div id="pagination">
+        <button onclick="prevPage()">Previous</button>
+        <span id="pageInfo"></span>
+        <button onclick="nextPage()">Next</button>
+    </div>
+
+    <script src="data.js"></script> 
+
+    <script>
+        var currentPage = 1;
+        var rowsPerPage = 10;
+        var sortDirection = {};
+        var filteredBooks = books.slice(); 
+
+        
+        function renderTable(data) {
+            var tbody = document.getElementById("books").getElementsByTagName("tbody")[0];
+            tbody.innerHTML = ""; 
+
+            var start = (currentPage - 1) * rowsPerPage;
+            var end = start + rowsPerPage;
+            if (end > data.length) end = data.length;
+
+            for (var i = start; i < end; i++) {
+                var book = data[i];
+                var ntr = document.createElement("tr");
+
+                var cols = ['title','isbn','pageCount','thumbnailUrl','status','authors','categories','price','currency','discount','discountUnits'];
+                for (var j = 0; j < cols.length; j++) {
+                    var td = document.createElement("td");
+                    td.innerText = book[cols[j]];
+                    ntr.appendChild(td);
+                }
+
+                tbody.appendChild(ntr);
+            }
+
+            document.getElementById("pageInfo").innerText = "Page " + currentPage + " of " + Math.ceil(data.length / rowsPerPage);
+        }
+
+    
+        function sortTable(property) {
+            sortDirection[property] = sortDirection[property] === "asc" ? "desc" : "asc";
+
+            filteredBooks.sort(function(a, b) {
+                var valA = a[property];
+                var valB = b[property];
+
+                
+                if (!isNaN(valA) && !isNaN(valB)) {
+                    valA = parseFloat(valA);
+                    valB = parseFloat(valB);
+                } else {
+                    valA = String(valA).toLowerCase();
+                    valB = String(valB).toLowerCase();
+                }
+
+                if (sortDirection[property] === "asc") return valA > valB ? 1 : valA < valB ? -1 : 0;
+                else return valA < valB ? 1 : valA > valB ? -1 : 0;
+            });
+
+            currentPage = 1; 
+            renderTable(filteredBooks);
+        }
+
+        
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable(filteredBooks);
+            }
+        }
+
+        function nextPage() {
+            if (currentPage * rowsPerPage < filteredBooks.length) {
+                currentPage++;
+                renderTable(filteredBooks);
+            }
+        }
+
+    
+        renderTable(filteredBooks);
+    </script>
+</body>
+</html>
